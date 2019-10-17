@@ -1,0 +1,194 @@
+public class UsersDAO {
+	Connection con;
+    PreparedStatement pst;
+    public String addUsersDao(Users users) {
+        con=DaoConnection.getConnection();
+        String cmd="insert into Users(user_id,user_name,date_of_birth,mail_id,employee_type)values(?,?,?,?,?)";
+        String result=" ";
+        if(users.getUser_id()!=0) {
+            try {
+                pst=con.prepareStatement(cmd);
+                pst.setInt(1, users.getUser_id());    
+                pst.setString(2, users.getUsername());
+                java.sql.Date sqlDate = new java.sql.Date(users.getDate_of_birth().getTime());
+                pst.setDate(3, sqlDate);
+                pst.setString(4, users.getEmail_id());
+                pst.setString(5,users.getEmployee_type());
+                pst.executeUpdate();
+                result="user inserted successfully";
+            } catch (SQLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                result=e.getMessage();
+            }
+        }else {
+            result="cannot be created..";
+        }
+        return result;
+    }
+    public Users searchUsersDao(int user_id) {
+        
+        con=DaoConnection.getConnection();
+        String cmd="select * from Users where User_id=?";
+        Users users=null;
+        try {
+            pst=con.prepareStatement(cmd);
+            pst.setInt(1, user_id);
+            ResultSet rs=pst.executeQuery();
+            if(rs.next()) {
+                users=new Users();
+                users.setUser_id(rs.getInt("user_id"));
+                users.setUsername(rs.getString("user_name"));
+                users.setDate_of_birth(rs.getDate("date_of_birth"));
+                users.setPassword(rs.getString("password"));
+                users.setEmail_id(rs.getString("mail_id"));
+                users.setEmployee_type(rs.getString("employee_type"));
+            }
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    return users;
+    }
+    public String updatePassword(int user_id,String pwd) {
+        String res="";
+        con=DaoConnection.getConnection();
+        String cmd="update Users set Password=? where user_id=?";
+    
+        Users users=new UsersDAO().searchUsersDao(user_id);
+        int id=users.getUser_id();
+        if(users!=null) {
+            try {
+                pst=con.prepareStatement(cmd);
+                pst.setString(1, pwd);
+                pst.setInt(2, id);
+                pst.executeUpdate();
+                res="password Updated";
+            } catch (SQLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                res=e.getMessage();
+            }
+        }
+        return res;
+    }
+
+ 
+
+    public String deleteUsers(int user_id) {
+        
+        con=DaoConnection.getConnection();
+        
+        Users users=new UsersDAO().searchUsersDao(user_id);
+        int id=users.getUser_id();
+        String cmd="delete from Users where user_id=?";
+        String res="";
+        if(users!=null) {
+            try {
+                pst=con.prepareStatement(cmd);
+                pst.setInt(1, id);
+                pst.executeUpdate();
+                res="user deleted";
+            } catch (SQLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                res=e.getMessage();
+            }    
+            }else {
+                res="user doesnot exist..";
+            }
+        return res;
+    }public Questions searchQuestionsDao() {
+        
+        con=DaoConnection.getConnection();
+        String cmd="select * from Queries";
+        Questions questions=new Questions();
+        try {
+            pst=con.prepareStatement(cmd);
+            ResultSet rs=pst.executeQuery();
+            if(rs.next()) {
+                questions.setQuestion_id(rs.getInt("query_id"));
+                questions.setQuestion_name(rs.getString("query_name"));
+                questions.setQuestion_description(rs.getString("query_description"));
+                questions.setQuestion_status(rs.getString("query_status"));
+                questions.setQuestion_posted_date(rs.getDate("query_date"));
+            }
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    return questions;
+    }
+    
+   
+    public String updateQuestionDao(int question_id ) {
+        con=DaoConnection.getConnection();
+        String cmd="Update Queries SET query_status=? where query_id=? " ;
+        String res="";
+        Questions questions=new QuestionsDAO().searchQuestionDao(question_id);
+        if(questions!=null) { 
+            try {
+                pst=con.prepareStatement(cmd);
+                pst.setString(1, "active");
+                pst.setInt(2, question_id);
+                pst.executeUpdate();
+                res="Question_status Updated";
+            } catch (SQLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                res=e.getMessage();
+            }
+            }else {
+                res="question not found..";
+            }
+        return res;
+        
+    }
+public Answers searchAnswersDao() {
+        
+        con=DaoConnection.getConnection();
+        String cmd="select * from Answers";
+        Answers ans=new Answers();
+        try {
+            pst=con.prepareStatement(cmd);
+            ResultSet rs=pst.executeQuery();
+            if(rs.next()) {
+                ans.setAnswer_id(rs.getInt("answer_id"));
+                ans.setQuestion_id(rs.getInt("query_id"));
+                ans.setAnswer_name(rs.getString("answer_name"));
+                ans.setAnswer_description(rs.getString("answer_description"));
+                ans.setStatus(rs.getString("answer_status"));
+                ans.setAns_posted_date(rs.getDate("posted_date"));
+                
+            }
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    return ans;
+    }
+  
+    public String updateAnswerDao(int answer_id ) {
+        con=DaoConnection.getConnection();
+        String cmd="update Answers set answer_status='active' where answer_id=?";
+        String res="";
+        Answers answers=new AnswersDAO().adminViewAnswers(answer_id);
+        if(answers!=null) { 
+            try {
+                pst=con.prepareStatement(cmd);
+                pst.setInt(1, answer_id);
+                pst.executeUpdate();
+                res="answer cannot be displayed";
+            } catch (SQLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                res=e.getMessage();
+            }
+            }else {
+                res="answer not found..";
+            }
+        return res;
+    }
+    
+
+}
